@@ -33,28 +33,51 @@ log4js.configure({
 var rclone_move_logger = log4js.getLogger('rclone_move');
 app.post('/rclone_move', function (req, res){
 
-    //Command to create the temp folder we're going to use to store the data we will move with rClone
-    var tmpFolderPath = 'mkdir ' + process.env.RCLONE_SOURCE + 'tmp_' +  Date.now();
-    rclone_move_logger.info("tmpFolderPath: ", tmpFolderPath);
+    //Define temp directory we're going to use to store the data we will move with rClone
+    var tmpDir = process.env.RCLONE_SOURCE + 'tmp_rclone_uploading_' +  Date.now();
+    rclone_move_logger.info("tempDir: ", tmpDir);
 
-    //Command to move the files into our temp processing folder
+    //Command to create the temp directory
+    var makeTmpDirCmd = 'mkdir ' + tmpDir;
+    rclone_move_logger.info("makeTmpDirCmd: ", makeTmpDirCmd);
+
+    //Command to move the correct files into our temp directory
     //TODO: Move everything except folders that begin with "processing_*"
-    var moveToTmpFolderCmd = 'mv  -v ' + process.env.RCLONE_SOURCE + '* ' + tmpFolderPath;
-    rclone_move_logger.info("moveToTmpFolderCmd: ", moveToTmpFolderCmd);
+    var moveToTmpDirCmd = 'mv  -v ' + process.env.RCLONE_SOURCE + '* ' + tmpDir;
+    rclone_move_logger.info("moveToTmpDirCmd: ", moveToTmpDirCmd);
 
-    //rClone command to upload the temp folder contents to the cloud
-    var rCloneSyncCommand = process.env.RCLONE_ENV + ' ' + process.env.RCLONE_COMMAND + ' ' + tmpFolderPath + ' ' + process.env.RCLONE_DEST + ' ' + process.env.RCLONE_FLAGS;
+    //rClone command to upload the temp directory contents to the cloud
+    var rCloneSyncCommand = process.env.RCLONE_ENV + ' ' + process.env.RCLONE_COMMAND + ' ' + tmpDir + ' ' + process.env.RCLONE_DEST + ' ' + process.env.RCLONE_FLAGS;
     rclone_move_logger.info("NEW rclone move command starting: ", rCloneSyncCommand);
 
+    //Run all our commands now
+    exec(makeTmpDirCmd, function(error, stdout, stderr) {
+        if(error){
+            rclone_move_logger.error("makeTmpDirCmd COMMAND error: ", error);
+        } else {
+          rclone_move_logger.info("makeTmpDirCmd COMMAND done: ", stdout, stderr);
+          return;
+        }
 
+        exec(moveToTmpDirCmd, function(error, stdout, stderr) {
+          if(error){
+            rclone_move_logger.error("moveToTmpDirCmd COMMAND error: ", error);
+          } else {
+            rclone_move_logger.info("moveToTmpDirCmd COMMAND done: ", stdout, stderr);
+            return;
+          }
 
-    // exec(rCloneSyncCommand, function(error, stdout, stderr) {
-    //     error ? rclone_move_logger.error("RCLONE MOVE COMMAND error: ", error) : rclone_move_logger.info("RCLONE MOVE COMMAND done: ", stdout, stderr);
-    //
-    //     //Clean up empty folders
-    //     var removeEmptyDirs = 'find . -depth -type d -exec rmdir {} \\; 2>/dev/null';
-    //     exec(removeEmptyDirs, {'cwd': '/local_media'});
-    // });
+          exec(rCloneSyncCommand, function(error, stdout, stderr) {
+              error ? rclone_move_logger.error("RCLONE MOVE COMMAND error: ", error) : rclone_move_logger.info("RCLONE MOVE COMMAND done: ", stdout, stderr);
+
+              //Clean up empty folders
+              var removeEmptyDirs = 'find . -depth -type d -exec rmdir {} \\; 2>/dev/null';
+              exec(removeEmptyDirs, {'cwd': '/local_media'});
+            });
+
+        });
+
+    });
 
     res.send('rclone move started');
 });
