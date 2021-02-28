@@ -54,28 +54,30 @@ app.post('/rclone_move', function (req, res){
     exec(makeTmpDirCmd, function(error, stdout, stderr) {
         if(error){
             rclone_move_logger.error("makeTmpDirCmd COMMAND error: ", error);
-        } else {
-          rclone_move_logger.info("makeTmpDirCmd COMMAND done: ", stdout, stderr);
-          return;
-        }
-
-        exec(moveToTmpDirCmd, function(error, stdout, stderr) {
-          if(error){
-            rclone_move_logger.error("moveToTmpDirCmd COMMAND error: ", error);
-          } else {
-            rclone_move_logger.info("moveToTmpDirCmd COMMAND done: ", stdout, stderr);
             return;
-          }
+        } else {
+            rclone_move_logger.info("makeTmpDirCmd COMMAND done: ", stdout, stderr);
 
-          exec(rCloneSyncCommand, function(error, stdout, stderr) {
-              error ? rclone_move_logger.error("RCLONE MOVE COMMAND error: ", error) : rclone_move_logger.info("RCLONE MOVE COMMAND done: ", stdout, stderr);
+            exec(moveToTmpDirCmd, function(error, stdout, stderr) {
+                if(error){
+                    rclone_move_logger.error("moveToTmpDirCmd COMMAND error: ", error);
+                    return;
+                } else {
+                    rclone_move_logger.info("moveToTmpDirCmd COMMAND done: ", stdout, stderr);
 
-              //Clean up empty folders
-              var removeEmptyDirs = 'find . -depth -type d -exec rmdir {} \\; 2>/dev/null';
-              exec(removeEmptyDirs, {'cwd': '/local_media'});
+                    exec(rCloneSyncCommand, function(error, stdout, stderr) {
+                        error ? rclone_move_logger.error("RCLONE MOVE COMMAND error: ", error) : rclone_move_logger.info("RCLONE MOVE COMMAND done: ", stdout, stderr);
+
+                        //Clean up empty folders
+                        // var removeEmptyDirs = 'find . -depth -type d -exec rmdir {} \\; 2>/dev/null';
+                        exec(removeEmptyDirs, {'cwd': '/local_media'});
+                    });
+
+                }
+
             });
 
-        });
+        }
 
     });
 
