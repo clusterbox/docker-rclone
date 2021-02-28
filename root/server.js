@@ -31,60 +31,50 @@ app.post('/rclone_move', function (req, res) {
 
   //Command to remove all empty directories
   var removeEmptyDirs = 'find . -depth -type d -exec rmdir {} \\; 2>/dev/null';
-  rclone_move_logger.info("removeEmptyDirs: ", removeEmptyDirs);
 
   //Define temp directory we're going to use to store the data we will move with rClone
   var tmpDir = process.env.RCLONE_SOURCE + 'tmp_rclone_uploading_' + Date.now();
-  rclone_move_logger.info("tempDir: ", tmpDir);
 
   //Command to create the temp directory
   var makeTmpDirCmd = 'mkdir ' + tmpDir;
-  rclone_move_logger.info("makeTmpDirCmd: ", makeTmpDirCmd);
 
   //Command to move the correct files into our temp directory
   //TODO: Move everything except folders that begin with "processing_*"
   var moveToTmpDirCmd = 'mv  -v ' + process.env.RCLONE_SOURCE + '* ' + tmpDir;
-  rclone_move_logger.info("moveToTmpDirCmd: ", moveToTmpDirCmd);
 
   //rClone command to upload the temp directory contents to the cloud
   var rCloneSyncCommand = process.env.RCLONE_ENV + ' ' + process.env.RCLONE_COMMAND + ' ' + tmpDir + ' ' + process.env.RCLONE_DEST + ' ' + process.env.RCLONE_FLAGS;
-  rclone_move_logger.info("NEW rclone move command starting: ", rCloneSyncCommand);
 
   //Run all our commands now
+  rclone_move_logger.info("RUNNING removeEmptyDirs: ", removeEmptyDirs);
   exec(removeEmptyDirs, {'cwd': process.env.RCLONE_SOURCE}, function (error, stdout, stderr) {
     if (error) {
-
       rclone_move_logger.error("removeEmptyDirs COMMAND error: ", error);
       return;
 
     } else {
-
-      rclone_move_logger.info("removeEmptyDirs COMMAND done: ", stdout, stderr);
-
+      rclone_move_logger.info("DONE removeEmptyDirs: ", stdout, stderr);
+      rclone_move_logger.info("RUNNING makeTmpDirCmd: ", makeTmpDirCmd);
       exec(makeTmpDirCmd, function (error, stdout, stderr) {
 
         if (error) {
-
           rclone_move_logger.error("makeTmpDirCmd COMMAND error: ", error);
           return;
 
         } else {
-
-          rclone_move_logger.info("makeTmpDirCmd COMMAND done: ", stdout, stderr);
-
+          rclone_move_logger.info("DONE makeTmpDirCmd: ", stdout, stderr);
+          rclone_move_logger.info("RUNNING moveToTmpDirCmd: ", moveToTmpDirCmd);
           exec(moveToTmpDirCmd, function (error, stdout, stderr) {
 
             if (error) {
-
               rclone_move_logger.error("moveToTmpDirCmd COMMAND error: ", error);
               return;
 
             } else {
-
-              rclone_move_logger.info("moveToTmpDirCmd COMMAND done: ", stdout, stderr);
-
+              rclone_move_logger.info("DONE moveToTmpDirCmd: ", stdout, stderr);
+              rclone_move_logger.info("RUNNING rCloneSyncCommand: ", rCloneSyncCommand);
               exec(rCloneSyncCommand, function (error, stdout, stderr) {
-                error ? rclone_move_logger.error("RCLONE MOVE COMMAND error: ", error) : rclone_move_logger.info("RCLONE MOVE COMMAND done: ", stdout, stderr);
+                error ? rclone_move_logger.error("rCloneSyncCommand COMMAND error: ", error) : rclone_move_logger.info("DONE rCloneSyncCommand: ", stdout, stderr);
 
                 //Clean up empty folders
                 exec(removeEmptyDirs, {'cwd': '/local_media'});
