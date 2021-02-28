@@ -39,8 +39,7 @@ app.post('/rclone_move', function (req, res) {
   var makeTmpDirCmd = 'mkdir ' + tmpDir;
 
   //Command to move the correct files into our temp directory
-  //TODO: Move everything except folders that begin with "processing_*"
-  var moveToTmpDirCmd = 'mv  -v ' + process.env.RCLONE_SOURCE + '* ' + tmpDir;
+  var moveToTmpDirCmd = 'find ' + process.env.RCLONE_SOURCE + '* -prune ! -name tmp_rclone_uploading_* -exec mv {} ' + tmpDir  + '/. +';
 
   //rClone command to upload the temp directory contents to the cloud
   var rCloneSyncCommand = process.env.RCLONE_ENV + ' ' + process.env.RCLONE_COMMAND + ' ' + tmpDir + ' ' + process.env.RCLONE_DEST + ' ' + process.env.RCLONE_FLAGS;
