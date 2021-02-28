@@ -8,100 +8,116 @@ var PORT = 8080;
 var app = express();
 
 
-
 log4js.configure({
-    appenders: {
-        rclone_move: {
-            type: 'file', filename: '/logs/rclone_move.log'
-        },
-        unionfs_cleanup: {
-            type: 'file', filename: '/logs/unionfs_cleanup.log'
-        }
+  appenders: {
+    rclone_move: {
+      type: 'file', filename: '/logs/rclone_move.log'
     },
-    categories: {
-        default: {
-            appenders: ['rclone_move'],
-            level: 'info'
-        }
+    unionfs_cleanup: {
+      type: 'file', filename: '/logs/unionfs_cleanup.log'
     }
+  },
+  categories: {
+    default: {
+      appenders: ['rclone_move'],
+      level: 'info'
+    }
+  }
 });
-
-
-
 
 
 var rclone_move_logger = log4js.getLogger('rclone_move');
-app.post('/rclone_move', function (req, res){
+app.post('/rclone_move', function (req, res) {
 
-    //Define temp directory we're going to use to store the data we will move with rClone
-    var tmpDir = process.env.RCLONE_SOURCE + 'tmp_rclone_uploading_' +  Date.now();
-    rclone_move_logger.info("tempDir: ", tmpDir);
+  //Command to remove all empty directories
+  var removeEmptyDirs = 'find . -depth -type d -exec rmdir {} \\; 2>/dev/null';
+  rclone_move_logger.info("removeEmptyDirs: ", removeEmptyDirs);
 
-    //Command to create the temp directory
-    var makeTmpDirCmd = 'mkdir ' + tmpDir;
-    rclone_move_logger.info("makeTmpDirCmd: ", makeTmpDirCmd);
+  //Define temp directory we're going to use to store the data we will move with rClone
+  var tmpDir = process.env.RCLONE_SOURCE + 'tmp_rclone_uploading_' + Date.now();
+  rclone_move_logger.info("tempDir: ", tmpDir);
 
-    //Command to move the correct files into our temp directory
-    //TODO: Move everything except folders that begin with "processing_*"
-    var moveToTmpDirCmd = 'mv  -v ' + process.env.RCLONE_SOURCE + '* ' + tmpDir;
-    rclone_move_logger.info("moveToTmpDirCmd: ", moveToTmpDirCmd);
+  //Command to create the temp directory
+  var makeTmpDirCmd = 'mkdir ' + tmpDir;
+  rclone_move_logger.info("makeTmpDirCmd: ", makeTmpDirCmd);
 
-    //rClone command to upload the temp directory contents to the cloud
-    var rCloneSyncCommand = process.env.RCLONE_ENV + ' ' + process.env.RCLONE_COMMAND + ' ' + tmpDir + ' ' + process.env.RCLONE_DEST + ' ' + process.env.RCLONE_FLAGS;
-    rclone_move_logger.info("NEW rclone move command starting: ", rCloneSyncCommand);
+  //Command to move the correct files into our temp directory
+  //TODO: Move everything except folders that begin with "processing_*"
+  var moveToTmpDirCmd = 'mv  -v ' + process.env.RCLONE_SOURCE + '* ' + tmpDir;
+  rclone_move_logger.info("moveToTmpDirCmd: ", moveToTmpDirCmd);
 
-    //Run all our commands now
-    exec(makeTmpDirCmd, function(error, stdout, stderr) {
-        if(error){
-            rclone_move_logger.error("makeTmpDirCmd COMMAND error: ", error);
-            return;
+  //rClone command to upload the temp directory contents to the cloud
+  var rCloneSyncCommand = process.env.RCLONE_ENV + ' ' + process.env.RCLONE_COMMAND + ' ' + tmpDir + ' ' + process.env.RCLONE_DEST + ' ' + process.env.RCLONE_FLAGS;
+  rclone_move_logger.info("NEW rclone move command starting: ", rCloneSyncCommand);
+
+  //Run all our commands now
+  exec(removeEmptyDirs, {'cwd': process.env.RCLONE_SOURCE}, function (error, stdout, stderr) {
+    if (error) {
+
+      rclone_move_logger.error("removeEmptyDirs COMMAND error: ", error);
+      return;
+
+    } else {
+
+      rclone_move_logger.info("removeEmptyDirs COMMAND done: ", stdout, stderr);
+
+      exec(makeTmpDirCmd, function (error, stdout, stderr) {
+
+        if (error) {
+
+          rclone_move_logger.error("makeTmpDirCmd COMMAND error: ", error);
+          return;
+
         } else {
-            rclone_move_logger.info("makeTmpDirCmd COMMAND done: ", stdout, stderr);
 
-            exec(moveToTmpDirCmd, function(error, stdout, stderr) {
-                if(error){
-                    rclone_move_logger.error("moveToTmpDirCmd COMMAND error: ", error);
-                    return;
-                } else {
-                    rclone_move_logger.info("moveToTmpDirCmd COMMAND done: ", stdout, stderr);
+          rclone_move_logger.info("makeTmpDirCmd COMMAND done: ", stdout, stderr);
 
-                    exec(rCloneSyncCommand, function(error, stdout, stderr) {
-                        error ? rclone_move_logger.error("RCLONE MOVE COMMAND error: ", error) : rclone_move_logger.info("RCLONE MOVE COMMAND done: ", stdout, stderr);
+          exec(moveToTmpDirCmd, function (error, stdout, stderr) {
 
-                        //Clean up empty folders
-                        // var removeEmptyDirs = 'find . -depth -type d -exec rmdir {} \\; 2>/dev/null';
-                        exec(removeEmptyDirs, {'cwd': '/local_media'});
-                    });
+            if (error) {
 
-                }
+              rclone_move_logger.error("moveToTmpDirCmd COMMAND error: ", error);
+              return;
 
-            });
+            } else {
+
+              rclone_move_logger.info("moveToTmpDirCmd COMMAND done: ", stdout, stderr);
+
+              exec(rCloneSyncCommand, function (error, stdout, stderr) {
+                error ? rclone_move_logger.error("RCLONE MOVE COMMAND error: ", error) : rclone_move_logger.info("RCLONE MOVE COMMAND done: ", stdout, stderr);
+
+                //Clean up empty folders
+                exec(removeEmptyDirs, {'cwd': '/local_media'});
+                exec(removeEmptyDirs, {'cwd': process.env.RCLONE_SOURCE});
+              });
+
+            }
+
+          });
 
         }
 
-    });
+      });
+    }
+  });
 
-    res.send('rclone move started');
+
+  res.send('rclone move started');
 });
-
-
-
 
 
 var unionfs_cleanup_logger = log4js.getLogger('unionfs_cleanup');
-app.post('/unionfs_cleanup', function(req, res){
+app.post('/unionfs_cleanup', function (req, res) {
 
-    var unionFsCleanupCommand = "bash unionfs-simple-cleanup.sh";
-    unionfs_cleanup_logger.info("UNIONFS CLEANUP COMMAND STARTING:", unionFsCleanupCommand);
+  var unionFsCleanupCommand = "bash unionfs-simple-cleanup.sh";
+  unionfs_cleanup_logger.info("UNIONFS CLEANUP COMMAND STARTING:", unionFsCleanupCommand);
 
-    exec(unionFsCleanupCommand, function(error, stdout, stderr) {
-        error ? unionfs_cleanup_logger.error("UNIONFS CLEANUP COMMAND error: ", stdout, stderr, error) : unionfs_cleanup_logger.info("UNIONFS CLEANUP COMMAND done: ", stdout, stderr);
-    });
+  exec(unionFsCleanupCommand, function (error, stdout, stderr) {
+    error ? unionfs_cleanup_logger.error("UNIONFS CLEANUP COMMAND error: ", stdout, stderr, error) : unionfs_cleanup_logger.info("UNIONFS CLEANUP COMMAND done: ", stdout, stderr);
+  });
 
-    res.send('unionFS cleanup started');
+  res.send('unionFS cleanup started');
 });
-
-
 
 
 app.listen(PORT);
