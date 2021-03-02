@@ -57,7 +57,7 @@ app.post('/rclone_move', function (req, res) {
     } else {
       rclone_move_logger.info("DONE getEncfsDirCmd: ", stdout, stderr);
 
-      var tmpDirEncrypted = process.env.RCLONE_ENCRYPTED_MEDIA + stdout;
+      var tmpDirEncrypted = process.env.RCLONE_ENCRYPTED_MEDIA + stdout.replace(process.env.RCLONE_ENCRYPTED_PARENT_FOLDER + '/', '');
 
       rclone_move_logger.info("RUNNING removeEmptyDirs: ", removeEmptyDirs);
       exec(removeEmptyDirs, {'cwd': process.env.RCLONE_UNENCRYPTED_MEDIA}, function (error, stdout, stderr) {
