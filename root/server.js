@@ -32,8 +32,11 @@ app.post('/rclone_move', function (req, res) {
   //Command to remove all empty directories
   var removeEmptyDirs = 'find . -depth -type d -exec rmdir {} \\; 2>/dev/null';
 
+  //Get timestamp we use to create unique folder
+  var timestamp =  Date.now();
+
   //Define temp directory we're going to use to store the data we will move with rClone
-  var tmpDir = process.env.RCLONE_UNENCRYPTED_MEDIA + 'rclone_upload_' + Date.now();
+  var tmpDir = process.env.RCLONE_UNENCRYPTED_MEDIA + 'rclone_upload_' + timestamp;
 
   //Command to create the temp directory
   var makeTmpDirCmd = 'mkdir ' + tmpDir;
@@ -42,7 +45,7 @@ app.post('/rclone_move', function (req, res) {
   var moveToTmpDirCmd = 'find ' + process.env.RCLONE_UNENCRYPTED_MEDIA + '* -prune ! -name rclone_upload_* -exec mv {} ' + tmpDir  + '/. +';
 
   //Command to use encFS lib to GET the encrypted temp directory name
-  var getEncfsDirCmd = 'ENCFS6_CONFIG=/encfs_config/encfs.xml encfsctl encode /local ' + process.env.RCLONE_CONTAINER_TYPE + '/' + tmpDir + ' --extpass="cat /encfs_config/encfspass"';
+  var getEncfsDirCmd = 'ENCFS6_CONFIG=/encfs_config/encfs.xml encfsctl encode /local ' + process.env.RCLONE_CONTAINER_TYPE + '/rclone_upload_' + timestamp + ' --extpass="cat /encfs_config/encfspass"';
 
   //Run all our commands now
   rclone_move_logger.info("RUNNING getEncfsDirCmd: ", getEncfsDirCmd);
