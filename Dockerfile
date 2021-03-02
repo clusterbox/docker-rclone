@@ -27,6 +27,12 @@ RUN apk add --update nano
 # Install Bash
 RUN apk add --update bash && rm -rf /var/cache/apk/*
 
+# Install Bash
+RUN apk add --update bash && rm -rf /var/cache/apk/*
+
+# Install encFS
+RUN apk add --update enfs
+
 # install build packages
 RUN \
  apk add --no-cache --virtual=build-dependencies \
