@@ -6,6 +6,8 @@ var log4js = require('log4js');
 var exec = require('child_process').exec;
 var PORT = 8080;
 var app = express();
+var util = require('util');
+
 
 
 log4js.configure({
@@ -91,7 +93,7 @@ app.post('/rclone_move', function (req, res) {
                   rclone_move_logger.info("DONE moveToTmpDirCmd: ", stdout, stderr);
                   rclone_move_logger.info("RUNNING rCloneSyncCommand: ", rCloneSyncCommand);
                   exec(rCloneSyncCommand, function (error, stdout, stderr) {
-                    error ? rclone_move_logger.error("rCloneSyncCommand COMMAND error: ", error) : rclone_move_logger.info("DONE rCloneSyncCommand: ", stdout, stderr);
+                    error ? console.log(util.inspect(error, {showHidden: false, depth: null})) : rclone_move_logger.info("DONE rCloneSyncCommand: ", stdout, stderr);
 
                     //Clean up empty folders
                     exec(removeEmptyDirs, {'cwd': process.env.RCLONE_UNENCRYPTED_MEDIA});
