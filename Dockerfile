@@ -31,7 +31,7 @@ RUN apk add --update bash && rm -rf /var/cache/apk/*
 RUN apk add --update bash && rm -rf /var/cache/apk/*
 
 # Install encFS
-RUN apk add --update enfs
+RUN apk add --update encfs
 
 # install build packages
 RUN \
