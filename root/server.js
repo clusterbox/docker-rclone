@@ -33,20 +33,23 @@ app.post('/rclone_move', function (req, res) {
   var removeEmptyDirs = 'find . -depth -type d -exec rmdir {} \\; 2>/dev/null';
 
   //Define temp directory we're going to use to store the data we will move with rClone
-  var tmpDir = process.env.RCLONE_SOURCE + 'tmp_rclone_uploading_' + Date.now();
+  var tmpDir = process.env.RCLONE_UNENCRYPTED_MEDIA + 'rclone_upload_' + Date.now();
+
+  //Define the encrypted temp directory name
+  var tmpDirEncrypted = process.env.RCLONE_ENCRYPTED_MEDIA + 'rclone_upload_' + Date.now();
 
   //Command to create the temp directory
   var makeTmpDirCmd = 'mkdir ' + tmpDir;
 
   //Command to move the correct files into our temp directory
-  var moveToTmpDirCmd = 'find ' + process.env.RCLONE_SOURCE + '* -prune ! -name tmp_rclone_uploading_* -exec mv {} ' + tmpDir  + '/. +';
+  var moveToTmpDirCmd = 'find ' + process.env.RCLONE_UNENCRYPTED_MEDIA + '* -prune ! -name rclone_upload_* -exec mv {} ' + tmpDir  + '/. +';
 
   //rClone command to upload the temp directory contents to the cloud
-  var rCloneSyncCommand = process.env.RCLONE_ENV + ' ' + process.env.RCLONE_COMMAND + ' ' + tmpDir + ' ' + process.env.RCLONE_DEST + ' ' + process.env.RCLONE_FLAGS;
+  var rCloneSyncCommand = process.env.RCLONE_ENV + ' ' + process.env.RCLONE_COMMAND + ' ' + tmpDirEncrypted + ' ' + process.env.RCLONE_DEST + ' ' + process.env.RCLONE_FLAGS;
 
   //Run all our commands now
   rclone_move_logger.info("RUNNING removeEmptyDirs: ", removeEmptyDirs);
-  exec(removeEmptyDirs, {'cwd': process.env.RCLONE_SOURCE}, function (error, stdout, stderr) {
+  exec(removeEmptyDirs, {'cwd': process.env.RCLONE_UNENCRYPTED_MEDIA}, function (error, stdout, stderr) {
     if (error) {
       rclone_move_logger.error("removeEmptyDirs COMMAND error: ", error);
       return;
@@ -76,8 +79,7 @@ app.post('/rclone_move', function (req, res) {
                 error ? rclone_move_logger.error("rCloneSyncCommand COMMAND error: ", error) : rclone_move_logger.info("DONE rCloneSyncCommand: ", stdout, stderr);
 
                 //Clean up empty folders
-                exec(removeEmptyDirs, {'cwd': '/local_media'});
-                exec(removeEmptyDirs, {'cwd': process.env.RCLONE_SOURCE});
+                exec(removeEmptyDirs, {'cwd': process.env.RCLONE_UNENCRYPTED_MEDIA});
               });
 
             }
