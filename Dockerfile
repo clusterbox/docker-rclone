@@ -68,16 +68,14 @@ RUN \
 
 EXPOSE  8080
 
-VOLUME ["/docker-rclone"]
-
-WORKDIR /docker-rclone
+VOLUME ["/app"]
 
 RUN pwd
 
 RUN ls
 
 # add local files
-COPY /root /docker-rclone
+COPY /root /app
 
 RUN pwd
 
