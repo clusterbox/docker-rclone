@@ -6,6 +6,7 @@ var log4js = require('log4js');
 var exec = require('child_process').exec;
 var PORT = 8080;
 var app = express();
+app.use(express.json());
 
 
 log4js.configure({
@@ -28,6 +29,22 @@ log4js.configure({
 
 var rclone_move_logger = log4js.getLogger('rclone_move');
 app.post('/rclone_move', function (req, res) {
+
+  console.log("req.body===================");
+  console.log(req.body);
+  console.log("req.body===================");
+
+  console.log("===========================");
+
+  console.log("req.params=================");
+  console.log(req.params);
+  console.log("req.params=================");
+
+  console.log("===========================");
+
+  console.log("req.query==================");
+  console.log(req.query);
+  console.log("req.query==================");
 
   //Command to remove all empty directories
   var removeEmptyDirs = 'find . -depth -type d -exec rmdir {} \\; 2>/dev/null';
