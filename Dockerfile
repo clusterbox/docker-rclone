@@ -18,9 +18,6 @@ RUN \
 # Install Node.js
 RUN apk add --update nodejs nodejs-npm && npm install npm@latest -g
 
-# Instal Nodemon
-RUN npm install -g nodemon
-
 # Install CURL
 RUN apk add --update curl
 
@@ -29,12 +26,6 @@ RUN apk add --update nano
 
 # Install Bash
 RUN apk add --update bash && rm -rf /var/cache/apk/*
-
-# Install Bash
-RUN apk add --update bash && rm -rf /var/cache/apk/*
-
-# Install encFS
-RUN apk add --update encfs
 
 # install build packages
 RUN \
@@ -64,37 +55,16 @@ RUN \
 	mkdir -p /config /app /defaults /data && \
 	touch /var/lock/rclone.lock
 
-#VOLUME ["/config"]
-
-EXPOSE  8080
-
-VOLUME ["/app"]
-
-RUN pwd
-
-RUN ls
-
 # add local files
-COPY /root /app
-
-RUN pwd
-
-RUN ls
-
-WORKDIR /app
-
-# move into our projects directory
+COPY root/ /
 
 # Install express.js
 RUN npm install
 
-RUN pwd
-RUN ls
+VOLUME ["/config"]
 
-#VOLUME ["/"]
+EXPOSE  8080
 
 #ENTRYPOINT ["/init"]
-#
-ENTRYPOINT ["npm", "start"]
 
-#ENTRYPOINT [""]
+CMD ["node", "server.js"]

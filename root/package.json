@@ -5,13 +5,12 @@
   "main": "server.js",
   "scripts": {
     "test": "test",
-    "start": "nodemon server.js"
+    "start": "node server.js"
   },
   "author": "Brad Davis",
   "license": "ISC",
   "dependencies": {
     "express": "^4.15.3",
-    "log4js": "^2.3.3",
-    "nodemon": "^2.0.7"
+    "log4js": "^2.3.3"
   }
 }
