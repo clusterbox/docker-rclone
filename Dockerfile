@@ -82,4 +82,4 @@ RUN ls
 
 #ENTRYPOINT ["/init"]
 
-ENTRYPOINT ["npm", "start"]
+ENTRYPOINT ["npm", "start", "--prefix", "/docker-rclone"]
