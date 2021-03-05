@@ -33,7 +33,7 @@ log4js.configure({
 var rclone_move_logger = log4js.getLogger('rclone_move');
 app.post('/rclone_move', function (req, res){
 
-    var rCloneSyncCommand = process.env.SYNC_COMMAND + " --config=/rclone/rclone.conf" + " --log-file=/logs/rclone_move.log --min-age 1m --delete-after";
+    var rCloneSyncCommand = process.env.RCLONE_ENV + ' ' + process.env.SYNC_COMMAND + " --config=/rclone/rclone.conf" + " --log-file=/logs/rclone_move.log --min-age 1m --delete-after";
     rclone_move_logger.info("rclone move command starting: ", rCloneSyncCommand);
 
     exec(rCloneSyncCommand, function(error, stdout, stderr) {
