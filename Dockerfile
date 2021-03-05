@@ -64,15 +64,18 @@ RUN \
 	mkdir -p /config /app /defaults /data && \
 	touch /var/lock/rclone.lock
 
-# add local files
-COPY root/ /
-
-# Install express.js
-RUN npm install
-
 VOLUME ["/config"]
 
 EXPOSE  8080
+
+# add local files
+COPY root/ /docker-rclone
+
+# move into our projects directory
+WORKDIR /docker-rclone
+
+# Install express.js
+RUN npm install
 
 #ENTRYPOINT ["/init"]
 
