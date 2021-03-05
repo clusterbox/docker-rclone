@@ -15,8 +15,11 @@ RUN \
  apk add --no-cache \
  ca-certificates
 
+# add local files
+ADD root /docker-rclone
+
 # Install Node.js
-RUN apk add --update nodejs nodejs-npm && npm install -g nodemon npm@latest
+RUN apk add --update nodejs nodejs-npm && npm install -g npm@latest nodemon
 
 # Install CURL
 RUN apk add --update curl
@@ -60,9 +63,6 @@ RUN \
 RUN \
 	mkdir -p /config /app /defaults /data && \
 	touch /var/lock/rclone.lock
-
-# add local files
-ADD root /docker-rclone
 
 # Install express.js
 RUN npm install
