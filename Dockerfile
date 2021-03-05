@@ -16,7 +16,7 @@ RUN \
  ca-certificates
 
 # Install Node.js
-RUN apk add --update nodejs nodejs-npm && npm install npm@latest -g && npm install nodemon -g
+RUN apk add --update nodejs nodejs-npm && npm install -g nodemon npm@latest
 
 # Install CURL
 RUN apk add --update curl
