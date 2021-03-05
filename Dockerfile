@@ -81,6 +81,8 @@ RUN pwd
 
 RUN ls
 
+WORKDIR /app
+
 # move into our projects directory
 
 # Install express.js
