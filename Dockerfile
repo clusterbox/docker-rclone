@@ -80,6 +80,8 @@ RUN npm install
 RUN pwd
 RUN ls
 
+VOLUME ["/docker-rclone"]
+
 #ENTRYPOINT ["/init"]
 #
 #ENTRYPOINT ["npm", "start", "--prefix", "/docker-rclone"]
