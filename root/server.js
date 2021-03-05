@@ -32,19 +32,8 @@ app.post('/rclone_move', function (req, res) {
 
   console.log("req.body===================");
   console.log(req.body);
+  console.log(req.body.series.path, req.body.episodeFile.relativePath);
   console.log("req.body===================");
-
-  console.log("===========================");
-
-  console.log("req.params=================");
-  console.log(req.params);
-  console.log("req.params=================");
-
-  console.log("===========================");
-
-  console.log("req.query==================");
-  console.log(req.query);
-  console.log("req.query==================");
 
   //Command to remove all empty directories
   var removeEmptyDirs = 'find . -depth -type d -exec rmdir {} \\; 2>/dev/null';
