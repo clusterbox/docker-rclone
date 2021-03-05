@@ -64,7 +64,7 @@ RUN \
 	mkdir -p /config /app /defaults /data && \
 	touch /var/lock/rclone.lock
 
-VOLUME ["/config"]
+#VOLUME ["/config"]
 
 EXPOSE  8080
 
