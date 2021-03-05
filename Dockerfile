@@ -79,4 +79,4 @@ RUN npm install
 
 #ENTRYPOINT ["/init"]
 
-ENTRYPOINT ["nodemon", "--verbose", "server.js"]
+ENTRYPOINT ["nodemon", "--inspect", "./server.js"]
