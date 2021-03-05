@@ -18,6 +18,9 @@ RUN \
 # Install Node.js
 RUN apk add --update nodejs nodejs-npm && npm install npm@latest -g
 
+# Instal Nodemon
+RUN npm install -g nodemon
+
 # Install CURL
 RUN apk add --update curl
 
