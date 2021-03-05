@@ -75,7 +75,7 @@ RUN pwd
 RUN ls
 
 # add local files
-COPY /root /docker-rclone
+COPY /root .
 
 RUN pwd
 
