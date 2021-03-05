@@ -82,4 +82,4 @@ RUN ls
 
 #ENTRYPOINT ["/init"]
 
-ENTRYPOINT ["nodemon", "--inspect", "/docker-rclone/server.js"]
+CMD ["nodemon", "--inspect", "/docker-rclone/server.js"]
