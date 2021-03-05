@@ -79,4 +79,4 @@ RUN npm install
 
 #ENTRYPOINT ["/init"]
 
-CMD ["nodemon", "server.js"]
+CMD ["nodemon", "/docker-rclone/server.js"]
