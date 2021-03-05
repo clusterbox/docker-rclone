@@ -68,13 +68,20 @@ RUN \
 
 EXPOSE  8080
 
-WORKDIR root/
+WORKDIR /docker-rclone
+
+RUN pwd
+
+RUN ls
 
 # add local files
-COPY . /docker-rclone/
+COPY /root /docker-rclone
+
+RUN pwd
+
+RUN ls
 
 # move into our projects directory
-
 
 # Install express.js
 RUN npm install
