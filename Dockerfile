@@ -68,6 +68,8 @@ RUN \
 
 EXPOSE  8080
 
+VOLUME ["/docker-rclone"]
+
 WORKDIR /docker-rclone
 
 RUN pwd
