@@ -62,8 +62,7 @@ RUN \
 	touch /var/lock/rclone.lock
 
 # add local files
-COPY root/ /docker-rclone
-WORKDIR /docker-rclone
+COPY root/ /
 
 # Install express.js
 RUN npm install
@@ -74,4 +73,4 @@ EXPOSE  8080
 
 #ENTRYPOINT ["/init"]
 
-CMD ["nodemon", "/docker-rclone/server.js"]
+CMD ["nodemon", "server.js"]
