@@ -74,6 +74,7 @@ COPY root/ /docker-rclone/
 # move into our projects directory
 WORKDIR /docker-rclone
 RUN pwd
+RUN ls
 
 # Install express.js
 RUN npm install
