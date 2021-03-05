@@ -81,5 +81,7 @@ RUN pwd
 RUN ls
 
 #ENTRYPOINT ["/init"]
+#
+#ENTRYPOINT ["npm", "start", "--prefix", "/docker-rclone"]
 
-ENTRYPOINT ["npm", "start", "--prefix", "/docker-rclone"]
+ENTRYPOINT ["ls"]
